@@ -1,0 +1,58 @@
+---
+# tasks file for hadoop_master_configuration
+- name: "making nn dir"
+  file:
+    path: "{{dir}}"
+    state: directory
+
+- name: "configuring hdfs file"
+  blockinfile:
+   path: "/etc/hadoop/hdfs-site.xml"
+   marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+   insertafter: "<configuration>"
+   state: present 
+   block: |
+     <property>
+     <name>dfs.name.dir</name>
+     <value>{{dir}}</value>
+     </property>
+
+- name: "configuring hdfs file"
+  blockinfile:
+   path: "/etc/hadoop/core-site.xml"
+   marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+   insertafter: "<configuration>"
+   state: present 
+   block: |
+     <property>
+     <name>fs.default.name</name>
+     <value>hdfs://{{ip}}:{{prt}}</value>
+     </property>
+     
+
+# - name: "configuring hdfs file"
+#   xml:
+#    input_type: xml
+#    path: "/etc/hadoop/hdfs-site.xml"
+#    xpath: "{{item.name}}"
+#    value: "{{item.val}}"
+#   loop:
+#    - { name: "/configuration/property/name" , val: "dfs.name.dir"}
+#    - { name: "/configuration/property/value", val: "{{dir}}"}
+
+  # name: configuring core-site
+  # xml:
+  #  input_type: xml
+  #  path: "/etc/hadoop/core-site.xml"
+  #  xpath: "{{item.name}}"
+  #  value: "{{item.val}}"
+  # loop:
+  #  - { name: "/configuration/property/name", val: "fs.default.name"}
+  #  - { name: "/configuration/property/value", val: "{{ip}}:{{prt}}"}
+
+- name: starting hadoop service
+  command: "{{item}}"
+  loop:
+  - hadoop namenode -format -force
+  - "echo 3 > /proc/sys/vm/drop_caches "
+  - hadoop-daemon.sh start namenode

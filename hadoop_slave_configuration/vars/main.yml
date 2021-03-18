@@ -1,0 +1,4 @@
+---
+# vars file for hadoop_slave_configuration
+prt: 9001
+dir: /dn

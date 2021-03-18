@@ -1,0 +1,11 @@
+---
+# tasks file for hadoop_client
+- name: configuring core-site
+  xml:
+   input_type: xml
+   path: '/etc/hadoop/core-site.xml'
+   xpath: "{{item.name}}"
+   value: "{{item.val}}"
+  loop:
+   - { name: '/configuration/property/name', val: 'fs.default.name'}
+   - { name: '/configuration/property/value', val: "hdfs://{{groups['master'][0]}}:9001"}

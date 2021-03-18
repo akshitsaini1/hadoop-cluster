@@ -1,0 +1,15 @@
+- hosts: all
+  roles:
+   - role: hadoop_installation
+
+- hosts: master
+  gather_facts: False
+  roles:
+    - role: hadoop_master_configuration
+
+- hosts: slave
+  roles:
+     - role: hadoop_slave_configuration
+- hosts: client 
+  roles:
+   - hadoop_client

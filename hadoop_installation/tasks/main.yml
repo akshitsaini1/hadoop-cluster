@@ -1,0 +1,39 @@
+---
+# tasks file for hadoop_installation
+- name: Installing python2
+  package:
+   name: "{{pkg}}"
+   state: present
+- name: installing lxml
+  pip:
+   name: lxml
+   state: present
+   
+- name: "download hadoop and jdk 1.8"
+  get_url:
+    url: "{{item}}"
+    dest: "/root/"
+  loop: "{{vars.softs}}" 
+
+- name: "rpm check"
+  command: "{{item}}"
+  loop:
+   - rpm -q jdk1.8 
+   - rpm -q hadoop
+  ignore_errors: yes
+  register: x
+- name: debug
+  debug:
+   var: x['results'][0]['rc']
+- name: "installing s/ws"
+  command: "{{item}}"
+  loop:
+    - "rpm -i /root/{{vars.java}}"
+    - "rpm -i /root/{{vars.hadoop}} --force"
+    - yum install tcpdump -y
+  when: x['results'][0]['rc'] == 1
+- name: "stopping firewall"
+  service:
+    name: "firewalld"
+    state: stopped
+  ignore_errors: yes
